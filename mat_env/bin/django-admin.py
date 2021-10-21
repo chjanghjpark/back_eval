@@ -1,4 +1,4 @@
-#!/Users/jch/matzip_sns/mat_env/bin/python3
+#!/goinfre/cjang/back_eval/mat_env/bin/python3
 # When the django-admin.py deprecation ends, remove this script.
 import warnings
 
