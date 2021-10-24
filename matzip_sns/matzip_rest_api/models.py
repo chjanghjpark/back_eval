@@ -4,6 +4,7 @@ from django.db import models
 class Evaluate(models.Model):
 	store = models.CharField(max_length=64)
 	star = models.CharField(max_length=5)
+	user = models.CharField(max_length=64)
 	# comment = models.CharField(max_length=256)
 	# adreess = models.CharField(max_length=128)
 	# time = models.DateTimeField()
