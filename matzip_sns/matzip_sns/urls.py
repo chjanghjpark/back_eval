@@ -25,5 +25,6 @@ router.register(r'evaluates', views.EvaluateViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    path('kakao_api/', views.KakaoLoginView.as_view(), name = 'kakao_api'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
