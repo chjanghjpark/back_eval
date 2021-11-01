@@ -1,7 +1,7 @@
 import requests
 import json
 
-ACCESS_TOKEN = 'aC8aOUGKm9MNGTJdZXd-hsDuuRSKMrUL0KxkqQo9dVsAAAF81cvYUg'
+ACCESS_TOKEN = ''
 KAKAO_URL = "https://kapi.kakao.com/v2/user/me"
 
 headers = {
