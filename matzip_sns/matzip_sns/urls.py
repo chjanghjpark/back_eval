@@ -16,15 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
-from rest_framework import routers
 from matzip_rest_api import views
 
-router = routers.DefaultRouter()
-router.register(r'evaluates', views.EvaluateViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
-    path('kakao_api/', views.KakaoLoginView.as_view(), name = 'kakao_api'),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('eval/', views.EvaluateViewSet.as_view({'get':'list', 'post':'create'})),
+    path('user/', views.UserinfoViewSet.as_view({'get':'list', 'post':'create'})),
+    path('kakao_api/', views.KakaoLoginView.as_view()),
 ]
