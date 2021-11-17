@@ -24,5 +24,6 @@ urlpatterns = [
     path('eval/', views.EvaluateViewSet.as_view({'get':'list', 'post':'create'})),
     path('user/', views.UserinfoViewSet.as_view({'get':'list', 'post':'create'})),
     path('kakao_api/', views.KakaoLoginView.as_view()),
+    path('naver_api', views.NaverLoginView.as_view()),
     path('post/', views.EvaluateView.as_view()),
 ]

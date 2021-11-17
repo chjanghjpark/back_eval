@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class Userinfo(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	id = models.BigIntegerField(primary_key=True)
+	signup_site = models.CharField(max_length=64)
 	name = models.CharField(max_length=64)
 
 class Evaluate(models.Model):
