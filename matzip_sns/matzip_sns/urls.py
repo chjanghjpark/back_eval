@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
 from matzip_rest_api import views
-
+from matzip_rest_api import google
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,5 +25,6 @@ urlpatterns = [
     path('user/', views.UserinfoViewSet.as_view({'get':'list', 'post':'create'})),
     path('kakao_api/', views.KakaoLoginView.as_view()),
     path('naver_api/', views.NaverLoginView.as_view()),
+    path('google_api/', google.GoogleLoginView.as_view()),
     path('post/', views.EvaluateView.as_view()),
 ]

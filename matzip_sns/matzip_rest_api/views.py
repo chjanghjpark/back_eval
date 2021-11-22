@@ -8,9 +8,9 @@ from django.views import View
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-# from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from .about_jwt import create_token, validate_token
+
 
 # Create your views here.
 class UserinfoViewSet(viewsets.ModelViewSet):
@@ -55,7 +55,6 @@ def login_api(login_site, url, token, token_type):
 
 	return JsonResponse({'jwt': encoded_jwt}, status=200)
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class NaverLoginView(APIView):
 	def post(self, request):
@@ -79,16 +78,12 @@ class KakaoLoginView(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class EvaluateView(APIView):
 	def post(self, request):
-		# user = request.user
-
 		encoded_jwt = request.headers.get('Authorization', None)
 		decoded_jwt = validate_token(encoded_jwt)
 		user_id = decoded_jwt['user_id']
 		user_nickname = decoded_jwt['nickname']
 		eval_store = request.headers.get('store', None)
 		eval_star = request.headers.get('star', None)
-
-		# eval_user = User.objects.get(username=user.username, password=user.password, last_name=user.last_name)
 
 		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
 		eval = Evaluate.objects.create(store=eval_store, star=eval_star, user=eval_user)
