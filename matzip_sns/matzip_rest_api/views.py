@@ -29,14 +29,25 @@ def login_api(login_site, url, token, token_type):
 	}
 	response = requests.post(url, headers=headers)
 	user_info = response.json()
-	if not user_info.get('id'):
-		return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
-	user_id = login_site + '_' + user_info.get('id')
 
 	if login_site == "kakao":
+		if not user_info.get('id'):
+			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
+		if not user_info.get('properties'):
+			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
+		if not user_info.get('properties').get('nickname'):
+			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
+		user_id = login_site + '_' + str(user_info.get('id'))
 		user_nickname = user_info.get('properties').get('nickname')
 	elif login_site == "naver":
-		user_nickname = user_info.get('response').get('nickname')
+		if not user_info.get('response'):
+			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
+		if not user_info.get('response').get('id'):
+			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
+		if not user_info.get('response').get('name'):
+			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
+		user_id = login_site + '_' + str(user_info.get('response').get('id'))
+		user_nickname = user_info.get('response').get('name')
 
 	user, user_flag = User.objects.get_or_create(username=user_id, password=user_id, last_name=user_nickname)
 	userinfo = Userinfo.objects.get_or_create(user=user, signup_site=login_site, name=user_nickname)
@@ -53,7 +64,7 @@ class NaverLoginView(APIView):
 		naver_token = request.headers.get('Authorization', None)
 		token_type = 'Bearer'
 
-		login_api(login_site, naver_url, naver_token, token_type)
+		return login_api(login_site, naver_url, naver_token, token_type)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class KakaoLoginView(APIView):
@@ -63,7 +74,7 @@ class KakaoLoginView(APIView):
 		kakao_token = request.headers.get('Authorization', None)
 		token_type = 'Bearer'
 
-		login_api(login_site, kakao_url, kakao_token, token_type)
+		return login_api(login_site, kakao_url, kakao_token, token_type)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class EvaluateView(APIView):
