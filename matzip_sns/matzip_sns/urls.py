@@ -15,16 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf.urls import include
-from matzip_rest_api import views
-from matzip_rest_api import google
+from matzip_rest_api.views import views, login, evaluate
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('eval/', views.EvaluateViewSet.as_view({'get':'list', 'post':'create'})),
     path('user/', views.UserinfoViewSet.as_view({'get':'list', 'post':'create'})),
+    path('login/', login.LoginView.as_view()),
     path('kakao_api/', views.KakaoLoginView.as_view()),
     path('naver_api/', views.NaverLoginView.as_view()),
-    path('google_api/', google.GoogleLoginView.as_view()),
-    path('post/', views.EvaluateView.as_view()),
+    path('google_api/', views.GoogleLoginView.as_view()),
+    path('post/', evaluate.EvaluateView.as_view()),
 ]
