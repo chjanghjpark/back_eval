@@ -1,16 +1,17 @@
 # from django.shortcuts import render
 import requests
 from rest_framework import viewsets
-from .serializers import EvaluateSerializer, UserinfoSerializer
-from .models import Evaluate, Userinfo
+from matzip_rest_api.forms.serializers import EvaluateSerializer, UserinfoSerializer
+from matzip_rest_api.models.models import Evaluate, Userinfo
 from django.contrib.auth.models import User
-from django.views import View
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-# from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
-from .about_jwt import create_token, validate_token
+from matzip_rest_api.jwt_func import create_access_token
+from google.oauth2 import id_token
+from google.auth.transport.requests import Request
+
 
 # Create your views here.
 class UserinfoViewSet(viewsets.ModelViewSet):
@@ -29,7 +30,7 @@ def login_api(login_site, url, token, token_type):
 	}
 	response = requests.post(url, headers=headers)
 	user_info = response.json()
-
+	# print(user_info)
 	if login_site == "kakao":
 		if not user_info.get('id'):
 			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
@@ -51,10 +52,9 @@ def login_api(login_site, url, token, token_type):
 
 	user, user_flag = User.objects.get_or_create(username=user_id, password=user_id, last_name=user_nickname)
 	userinfo = Userinfo.objects.get_or_create(user=user, signup_site=login_site, name=user_nickname)
-	encoded_jwt = create_token(user_id, user_nickname)
+	encoded_jwt = create_access_token(user_id, user_nickname)
 
 	return JsonResponse({'jwt': encoded_jwt}, status=200)
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class NaverLoginView(APIView):
@@ -77,20 +77,40 @@ class KakaoLoginView(APIView):
 		return login_api(login_site, kakao_url, kakao_token, token_type)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class EvaluateView(APIView):
+class GoogleLoginView(APIView):
+	# (Receive token by HTTPS POST)
+	# ...
 	def post(self, request):
-		# user = request.user
+		try:
+			# Specify the CLIENT_ID of the app that accesses the backend:
+			google_token = request.headers.get('Authorization', None)
+			# google_validate_id_token(google_token)
+			CLIENT_ID = "506826022275-kaqkf69c5ud0kt3g98s50d8sbi7stg2f.apps.googleusercontent.com"
+			idinfo = id_token.verify_oauth2_token(google_token, Request(), CLIENT_ID)
+			# print(idinfo)
+			# Or, if multiple clients access the backend server:
+			# idinfo = id_token.verify_oauth2_token(token, requests.Request())
+			# if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+			#     raise ValueError('Could not verify audience.')
 
-		encoded_jwt = request.headers.get('Authorization', None)
-		decoded_jwt = validate_token(encoded_jwt)
-		user_id = decoded_jwt['user_id']
-		user_nickname = decoded_jwt['nickname']
-		eval_store = request.headers.get('store', None)
-		eval_star = request.headers.get('star', None)
+			# If auth request is from a G Suite domain:
+			# if idinfo['hd'] != GSUITE_DOMAIN_NAME:
+			#     raise ValueError('Wrong hosted domain.')
 
-		# eval_user = User.objects.get(username=user.username, password=user.password, last_name=user.last_name)
+			# ID token is valid. Get the user's Google Account ID from the decoded token.
+			# userid = idinfo['sub']
+			login_site = 'google'
+			user_id = login_site + '_' + str(idinfo.get('sub'))
+			# print(user_id)
+			user_nickname = idinfo.get('name')
 
-		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
-		eval = Evaluate.objects.create(store=eval_store, star=eval_star, user=eval_user)
+			user, user_flag = User.objects.get_or_create(username=user_id, password=user_id, last_name=user_nickname)
+			userinfo = Userinfo.objects.get_or_create(user=user, signup_site=login_site, name=user_nickname)
+			encoded_jwt = create_access_token(user_id, user_nickname)
 
-		return JsonResponse({'message': 'success'}, status=200)
+			return JsonResponse({'jwt': encoded_jwt}, status=200)
+			
+		except ValueError:
+			# Invalid token
+			pass
+

@@ -4,10 +4,21 @@ import datetime
 
 SECRET_PRE = ''
 
-def	create_token(user_id, nickname):
+def	create_access_token(user_id, nickname):
 	encoded = jwt.encode(
 		{
 			'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
+			'user_id' : user_id,
+			'nickname': nickname,
+		},
+		SECRET_PRE, algorithm='HS256'
+	)
+	return encoded
+
+def create_refresh_token(user_id, nickname):
+	encoded = jwt.encode(
+		{
+			'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24),
 			'user_id' : user_id,
 			'nickname': nickname,
 		},

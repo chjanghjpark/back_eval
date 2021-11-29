@@ -1,4 +1,4 @@
-from .models import Evaluate, Userinfo
+from matzip_rest_api.models.models import Evaluate, Userinfo
 from rest_framework import serializers
 
 class EvaluateSerializer(serializers.ModelSerializer):
