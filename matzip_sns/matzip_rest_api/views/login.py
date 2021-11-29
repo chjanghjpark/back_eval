@@ -1,4 +1,5 @@
 import requests
+import json
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from google.auth.transport.requests import Request
@@ -13,7 +14,9 @@ token_type = 'Bearer'
 class LoginView(APIView):
 	def post(self, request):
 		token = request.headers.get('Authorization', None)
-		login_site = request.headers.get('login_site', None)
+		login_site = request.body.decode('utf-8')
+		body = json.loads(login_site)
+		login_site = body['login_site']
 		
 		if not token:
 			return (JsonResponse({'message': 'TOKEN_REQUIRED'}, status=400))
