@@ -14,10 +14,10 @@ token_type = 'Bearer'
 class LoginView(APIView):
 	def post(self, request):
 		token = request.headers.get('Authorization', None)
-		login_site = request.body.decode('utf-8')
-		body = json.loads(login_site)
+		# print(token)
+		body = json.loads(request.body.decode('utf-8'))
 		login_site = body['login_site']
-		
+
 		if not token:
 			return (JsonResponse({'message': 'TOKEN_REQUIRED'}, status=400))
 
