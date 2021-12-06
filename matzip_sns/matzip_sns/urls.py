@@ -20,7 +20,6 @@ from matzip_rest_api.views import views, login, evaluate
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('eval/', evaluate.EvaluateView.as_view()),
-    # path('eval/', views.EvaluateViewSet.as_view({'get':'list', 'post':'create'})),
     path('user/', views.UserinfoViewSet.as_view({'get':'list', 'post':'create'})),
     path('login/', login.LoginView.as_view()),
 ]

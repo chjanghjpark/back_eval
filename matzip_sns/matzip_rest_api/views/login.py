@@ -8,8 +8,6 @@ from django.contrib.auth.models import User
 from matzip_rest_api.models.models import Evaluate, Userinfo
 from matzip_rest_api.jwt_func import create_access_token, create_refresh_token
 
-kakao_url = "https://kapi.kakao.com/v2/user/me"
-token_type = 'Bearer'
 
 class LoginView(APIView):
 	def post(self, request):

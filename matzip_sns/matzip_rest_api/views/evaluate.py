@@ -26,6 +26,7 @@ class EvaluateView(APIView):
 		eval = Evaluate.objects.create(store=eval_store, star=eval_star, user=eval_user)
 
 		return JsonResponse({'message': 'success'}, status=200)
+
 	def get(self, request):
 		encoded_jwt = request.headers.get('Authorization', None)
 		decoded_jwt = validate_token(encoded_jwt)
@@ -35,5 +36,4 @@ class EvaluateView(APIView):
 		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
 
 		eval = serializers.serialize("json", Evaluate.objects.filter(user=eval_user))
-		print(eval)
-		return JsonResponse({'message': 'success'}, status=200)
+		return JsonResponse({'eval': eval, 'message': 'success'}, status=200)
