@@ -8,16 +8,14 @@ from django.contrib.auth.models import User
 from matzip_rest_api.models.models import Evaluate, Userinfo
 from matzip_rest_api.jwt_func import create_access_token, create_refresh_token
 
-kakao_url = "https://kapi.kakao.com/v2/user/me"
-token_type = 'Bearer'
 
 class LoginView(APIView):
 	def post(self, request):
 		token = request.headers.get('Authorization', None)
-		login_site = request.body.decode('utf-8')
-		body = json.loads(login_site)
+		# print(token)
+		body = json.loads(request.body.decode('utf-8'))
 		login_site = body['login_site']
-		
+
 		if not token:
 			return (JsonResponse({'message': 'TOKEN_REQUIRED'}, status=400))
 

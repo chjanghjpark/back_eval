@@ -1,49 +1,60 @@
 import requests
-# import json
+import json
 
-ACCESS_TOKEN = ''
+KAKAO_TOKEN = 'W0XOCg7mChT1_W4kZzPWKNxZmsuhTbKPpkM44go9dNsAAAF9jeg8MQ'
 
-# def get_info(ACCESS_TOKEN):
+class Login():
+	def post(ACCESS_TOKEN, login_site):
+		url = "http://127.0.0.1:8000/login/"
 
-# 	KAKAO_URL = "https://kapi.kakao.com/v2/user/me"
+		headers = {
+			'Authorization': ACCESS_TOKEN
+		}
+		data = {
+			'login_site': login_site
+		}
+		response = requests.post(url, headers=headers, data=json.dumps(data))
+		print(response)
 
-# 	headers = {
-# 		'Authorization': 'Bearer' + ' ' + ACCESS_TOKEN
-# 	}
-# 	response = requests.post(KAKAO_URL, headers=headers)
-# 	print(response)
-# 	# print(response.json())
-# 	User_info = response.json()
-# 	user_id = User_info.get('id')
-# 	user_nickname = User_info.get('properties').get('nickname')
-# 	print(user_id, user_nickname)
-# 	return User_info
+		user_info = response.json()
+		access_token = user_info.get('access_token')
+		refresh_token = user_info.get('refresh_token')
+		return access_token, refresh_token
 
-# get_info(ACCESS_TOKEN)
+class Eval():
+	def post(access_token):
+		url = "http://127.0.0.1:8000/eval/"
 
-def get_info_backend(ACCESS_TOKEN):
-	url = "http://127.0.0.1:8000/kakao_api/"
+		headers = {
+			'Authorization': access_token,
+		}
+		data = {
+			'store': 'test123',
+			'star': '1',
+		}
+		response = requests.post(url, headers=headers, data=json.dumps(data))
+		print(response)
 
-	headers = {
-		'Authorization': ACCESS_TOKEN
-	}
-	response = requests.post(url, headers=headers)
-	print(response)
-	user_info = response.json()
-	access_token = user_info.get('jwt')
-	return access_token
+		message_json = response.json()
+		message = message_json.get('message')
+		return message
 
-def post_eval(backend_token):
-	url = "http://127.0.0.1:8000/post/"
+	def get(access_token):
+		url = "http://127.0.0.1:8000/eval/"
 
-	headers = {
-		'Authorization': backend_token,
-		'store': 'test123',
-		'star': '1',
-	}
-	response = requests.post(url, headers=headers)
-	print(response)
+		headers = {
+			'Authorization': access_token,
+		}
 
-backend_token = get_info_backend(ACCESS_TOKEN)
-print(backend_token)
-post_eval(backend_token)
+		response = requests.get(url, headers=headers)
+		print(response)
+
+		message_json = response.json()
+		message = message_json.get('eval')
+		return message
+
+
+access_token, refresh_token = Login.post(KAKAO_TOKEN, 'kakao')
+print(access_token)
+message = Eval.get(access_token)
+print(message)
