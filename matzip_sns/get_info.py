@@ -1,7 +1,7 @@
 import requests
 import json
 
-KAKAO_TOKEN = 'W0XOCg7mChT1_W4kZzPWKNxZmsuhTbKPpkM44go9dNsAAAF9jeg8MQ'
+KAKAO_TOKEN = ''
 
 class Login():
 	def post(ACCESS_TOKEN, login_site):
@@ -53,8 +53,49 @@ class Eval():
 		message = message_json.get('eval')
 		return message
 
+	def put(access_token):
+		url = "http://127.0.0.1:8000/eval/"
+
+		headers = {
+			'Authorization': access_token,
+		}
+		data = {
+			'pk': 16,
+			'store': 'front',
+			'star': '5',
+		}
+
+		response = requests.put(url, headers=headers, data=json.dumps(data))
+		print(response)
+
+		message_json = response.json()
+		message = message_json.get('eval')
+		return message
+
+	def delete(access_token, pk):
+		url = "http://127.0.0.1:8000/eval/"
+
+		headers = {
+			'Authorization': access_token,
+		}
+		data = {
+			'pk': pk,
+		}
+
+		response = requests.delete(url, headers=headers, data=json.dumps(data))
+		print(response)
+
+		message_json = response.json()
+		message = message_json.get('message')
+		return message
+
+
 
 access_token, refresh_token = Login.post(KAKAO_TOKEN, 'kakao')
 print(access_token)
+# message = Eval.post(access_token)
 message = Eval.get(access_token)
+print(message)
+# message = Eval.put(access_token)
+message = Eval.delete(access_token, 9)
 print(message)
