@@ -21,6 +21,18 @@ class Login():
 		refresh_token = user_info.get('refresh_token')
 		return access_token, refresh_token
 
+	def get(refresh_token):
+		url = "http://127.0.0.1:8000/login/"
+		headers = {
+			'Authorization': refresh_token
+		}
+		response = requests.get(url, headers=headers)
+		print(response)
+		
+		user_info = response.json()
+		access_token = user_info.get('access_token')
+		return access_token
+
 class Eval():
 	def post(access_token):
 		url = "http://127.0.0.1:8000/eval/"
@@ -93,9 +105,11 @@ class Eval():
 
 access_token, refresh_token = Login.post(KAKAO_TOKEN, 'kakao')
 print(access_token)
+access_token = Login.get(refresh_token)
+print(access_token)
 # message = Eval.post(access_token)
-message = Eval.get(access_token)
-print(message)
+# message = Eval.get(access_token)
+# print(message)
 # message = Eval.put(access_token)
-message = Eval.delete(access_token, 9)
-print(message)
+# message = Eval.delete(access_token, 9)
+# print(message)

@@ -10,4 +10,4 @@ class EvaluateSerializer(serializers.ModelSerializer):
 class UserinfoSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Userinfo
-		fields = ("id", "name")
+		fields = ("id", "user")

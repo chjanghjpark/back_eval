@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'matzip_rest_api',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -141,3 +142,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
 ]
+
+GRAPH_MODELS = {
+    "all_applications": True,
+    "group_models": True,
+}
