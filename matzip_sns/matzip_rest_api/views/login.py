@@ -14,12 +14,15 @@ from matzip_rest_api.jwt_func import validate_token
 class LoginView(APIView):
 	def post(self, request):
 		token = request.headers.get('Authorization', None)
-		# print(token)
-		body = json.loads(request.body.decode('utf-8'))
-		login_site = body['login_site']
-
 		if not token:
 			return (JsonResponse({'message': 'TOKEN_REQUIRED'}, status=400))
+		# print(token)
+		body = json.loads(request.body.decode('utf-8'))
+		print(body)
+		try:
+			login_site = body['login_site']
+		except:
+			return (JsonResponse({'message': 'login_site REQUITED'}, status=400))
 
 		if login_site == "google":
 			user_id, user_nickname = google_api(token)
@@ -29,7 +32,8 @@ class LoginView(APIView):
 			user_id, user_nickname = naver_api(token)
 		else:
 			return (JsonResponse({'message': 'login_site_invalid'}, status=400))
-
+		if user_id is None or user_nickname is None:
+			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=401)
 		user, user_flag = User.objects.get_or_create(username=user_id, password=user_id, last_name=user_nickname)
 		userinfo = Userinfo.objects.get_or_create(user=user, login_site=login_site)
 		access_token = create_access_token(user_id, user_nickname)
@@ -95,15 +99,9 @@ def kakao_api(token):
 		}
 		response = requests.post(url, headers=headers)
 		user_info = response.json()
-		if not user_info.get('id'):
-			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
-		if not user_info.get('properties'):
-			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
-		if not user_info.get('properties').get('nickname'):
-			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=405)
+		
 		user_id = login_site + '_' + str(user_info.get('id'))
 		user_nickname = user_info.get('properties').get('nickname')
-
 		return (user_id, user_nickname)
-	except ValueError:
-		pass
+	except:
+		return (None, None)

@@ -10,6 +10,7 @@ def	create_access_token(user_id, nickname):
 			'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
 			'user_id' : user_id,
 			'nickname': nickname,
+			'token_type': 'access_token',
 		},
 		SECRET_PRE, algorithm='HS256'
 	)
@@ -21,6 +22,7 @@ def create_refresh_token(user_id, nickname):
 			'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24),
 			'user_id' : user_id,
 			'nickname': nickname,
+			'token_type': 'refresh_token',
 		},
 		SECRET_PRE, algorithm='HS256'
 	)

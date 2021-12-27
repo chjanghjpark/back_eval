@@ -20,7 +20,7 @@ class EvaluateView(APIView):
 
 		body = json.loads(request.body.decode('utf-8'))
 		eval_store = body['store']
-		eval_star = body['star']
+		eval_star = int(body['star'])
 
 		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
 		eval = Evaluate.objects.create(store=eval_store, star=eval_star, user=eval_user)
@@ -49,7 +49,7 @@ class EvaluateView(APIView):
 		body = json.loads(request.body.decode('utf-8'))
 		eval_pk = body['pk']
 		eval_store = body['store']
-		eval_star = body['star']
+		eval_star = int(body['star'])
 
 		# 다른 유저의 토큰으로 해당 유저의 글을 수정할 수 없음.
 		eval_obj = Evaluate.objects.get(id=eval_pk)

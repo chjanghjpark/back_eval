@@ -8,7 +8,3 @@ from matzip_rest_api.models.models import Evaluate, Userinfo
 class UserinfoViewSet(viewsets.ModelViewSet):
 	queryset = Userinfo.objects.all()
 	serializer_class = UserinfoSerializer
-
-class EvaluateViewSet(viewsets.ModelViewSet):
-	queryset = Evaluate.objects.all()
-	serializer_class = EvaluateSerializer
