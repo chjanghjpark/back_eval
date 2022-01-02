@@ -5,77 +5,146 @@ from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_exempt
 from matzip_rest_api.jwt_func import validate_token
 from django.contrib.auth.models import User
-from matzip_rest_api.models.models import Evaluate
+from matzip_rest_api.models.models import Evaluate, Store
 from django.http import JsonResponse
 from django.core import serializers
+
+class NotMatchUserEval(Exception):
+	def __init__(self):
+		super().__init__('NotMatchUserEval')
 
 @method_decorator(csrf_exempt, name='dispatch')
 class EvaluateView(APIView):
 	def post(self, request):
 		# 유효하지 않은 jwt일 경우 예외사항 만들어야함.
-		encoded_jwt = request.headers.get('Authorization', None)
-		decoded_jwt = validate_token(encoded_jwt)
-		user_id = decoded_jwt['user_id']
-		user_nickname = decoded_jwt['nickname']
+		try:
+			encoded_jwt = request.headers.get('Authorization', None)
+			decoded_jwt = validate_token(encoded_jwt)
+			if (decoded_jwt['token_type'] != "access_token"):
+				raise ValueError
+			body = json.loads(request.body.decode('utf-8'))
 
-		body = json.loads(request.body.decode('utf-8'))
-		eval_store = body['store']
-		eval_star = int(body['star'])
+			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
+			store, store_flag = Store.objects.get_or_create(store_name=body['store_name'], address=body['address'], \
+				latitude=body['latitude'], longitude=body['longitude'], store_type=body['store_type'])
+			eval = Evaluate.objects.create(user=user, store=store, star=int(body['star']), \
+				invited_date=body['invited_date'], open_close=body['open_close'])
 
-		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
-		eval = Evaluate.objects.create(store=eval_store, star=eval_star, user=eval_user)
+			return JsonResponse({'message': 'success'}, status=200)
 
-		return JsonResponse({'message': 'success'}, status=200)
+		# 토큰에 원하는 값이 없을 경우
+		except TypeError:
+			return (JsonResponse({'message': 'TOKEN_INFO ERROR'}, status=400))
+		# token_type이 accss_token 아닌경우 , token body 타입이 js 아닐때
+		except ValueError:
+			return (JsonResponse({'message': 'TOKEN_TYPE ERROR'}, status=400))
+		# body - info not vaild
+		except KeyError:
+			return (JsonResponse({'message': 'body_info REQUITED'}, status=400))
+		# user - not exist
+		except User.DoesNotExist:
+			return (JsonResponse({'message': 'USER REQUITED'}, status=400))
+
 
 	def get(self, request):
-		encoded_jwt = request.headers.get('Authorization', None)
-		decoded_jwt = validate_token(encoded_jwt)
-		user_id = decoded_jwt['user_id']
-		user_nickname = decoded_jwt['nickname']
+		try:
+			encoded_jwt = request.headers.get('Authorization', None)
+			decoded_jwt = validate_token(encoded_jwt)
+			if (decoded_jwt['token_type'] != "access_token"):
+				raise ValueError
 
-		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
+			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
+			eval = serializers.serialize("json", Evaluate.objects.filter(user=user))
 
-		eval = serializers.serialize("json", Evaluate.objects.filter(user=eval_user))
-		return JsonResponse({'eval': eval, 'message': 'success'}, status=200)
+			return JsonResponse({'eval': eval, 'message': 'success'}, status=200)
+
+		# 토큰에 원하는 값이 없을 경우
+		except TypeError:
+			return (JsonResponse({'message': 'TOKEN_INFO ERROR'}, status=400))
+		# token_type이 accss_token 아닌경우 , token body 타입이 js 아닐때
+		except ValueError:
+			return (JsonResponse({'message': 'TOKEN_TYPE ERROR'}, status=400))
+		# user - not exist
+		except User.DoesNotExist:
+			return (JsonResponse({'message': 'USER REQUITED'}, status=400))
 
 	def put(self, request):
-		encoded_jwt = request.headers.get('Authorization', None)
-		decoded_jwt = validate_token(encoded_jwt)
-		user_id = decoded_jwt['user_id']
-		user_nickname = decoded_jwt['nickname']
+		try:
+			encoded_jwt = request.headers.get('Authorization', None)
+			decoded_jwt = validate_token(encoded_jwt)
+			if (decoded_jwt['token_type'] != "access_token"):
+				raise ValueError
 
-		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
+			body = json.loads(request.body.decode('utf-8'))
 
-		body = json.loads(request.body.decode('utf-8'))
-		eval_pk = body['pk']
-		eval_store = body['store']
-		eval_star = int(body['star'])
+			# 다른 유저의 토큰으로 해당 유저의 글을 수정할 수 없음.
+			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
+			eval = Evaluate.objects.get(id=body['pk'])
+			store = Store.objects.get(address=body['address'])
+			if (user.username != str(eval.user)):
+				raise NotMatchUserEval
 
-		# 다른 유저의 토큰으로 해당 유저의 글을 수정할 수 없음.
-		eval_obj = Evaluate.objects.get(id=eval_pk)
-		if (eval_user.username != str(eval_obj.user)):
+			eval.store = store
+			eval.star = int(body['star'])
+			eval.invited_date=body['invited_date']
+			eval.open_close=body['open_close']
+			eval.save()
+
+			eval = serializers.serialize("json", Evaluate.objects.filter(pk=body['pk']))
+			return JsonResponse({'eval': eval, 'message': 'success'}, status=200)
+
+		# 토큰에 원하는 값이 없을 경우
+		except TypeError:
+			return (JsonResponse({'message': 'TOKEN_INFO ERROR'}, status=400))
+		# token_type이 accss_token 아닌경우 , token body 타입이 js 아닐때
+		except ValueError:
+			return (JsonResponse({'message': 'TOKEN_TYPE ERROR'}, status=400))
+		# body - info not vaild
+		except KeyError:
+			return (JsonResponse({'message': 'body_info REQUITED'}, status=400))
+		# Model - not exist
+		except User.DoesNotExist:
+			return (JsonResponse({'message': 'USER REQUITED'}, status=400))
+		except Store.DoesNotExist:
+			return (JsonResponse({'message': 'Store REQUITED'}, status=400))
+		except Evaluate.DoesNotExist:
+			return (JsonResponse({'message': 'Evaluation REQUITED'}, status=400))
+		# 글쓴이랑 실제 유저랑 다른경우
+		except NotMatchUserEval:
 			return (JsonResponse({'message': 'not match user to eval'}, status=400))
-
-		eval_obj.store = eval_store
-		eval_obj.star = eval_star
-		eval_obj.save()
-
-		eval = serializers.serialize("json", Evaluate.objects.filter(pk = eval_pk))
-		return JsonResponse({'eval': eval, 'message': 'success'}, status=200)
 
 	def delete(self, request):
-		encoded_jwt = request.headers.get('Authorization', None)
-		decoded_jwt = validate_token(encoded_jwt)
-		user_id = decoded_jwt['user_id']
-		user_nickname = decoded_jwt['nickname']
+		try:
+			encoded_jwt = request.headers.get('Authorization', None)
+			decoded_jwt = validate_token(encoded_jwt)
+			if (decoded_jwt['token_type'] != "access_token"):
+				raise ValueError
 
-		eval_user = User.objects.get(username=user_id, password=user_id, last_name=user_nickname)
+			body = json.loads(request.body.decode('utf-8'))
 
-		body = json.loads(request.body.decode('utf-8'))
-		eval_pk = body['pk']
+			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
+			eval = Evaluate.objects.get(id=body['pk'])
+			if (user.username != str(eval.user)):
+				raise NotMatchUserEval
 
-		eval_obj = Evaluate.objects.get(id=eval_pk)
-		if (eval_user.username != str(eval_obj.user)):
+			eval.delete()
+
+			return JsonResponse({'message': 'success'}, status=200)
+
+		# 토큰에 원하는 값이 없을 경우
+		except TypeError:
+			return (JsonResponse({'message': 'TOKEN_INFO ERROR'}, status=400))
+		# token_type이 accss_token 아닌경우 , token body 타입이 js 아닐때
+		except ValueError:
+			return (JsonResponse({'message': 'TOKEN_TYPE ERROR'}, status=400))
+		# body - info not vaild
+		except KeyError:
+			return (JsonResponse({'message': 'body_info REQUITED'}, status=400))
+		# Model - not exist
+		except User.DoesNotExist:
+			return (JsonResponse({'message': 'USER REQUITED'}, status=400))
+		except Evaluate.DoesNotExist:
+			return (JsonResponse({'message': 'Evaluation REQUITED'}, status=400))
+		# 글쓴이랑 실제 유저랑 다른경우
+		except NotMatchUserEval:
 			return (JsonResponse({'message': 'not match user to eval'}, status=400))
-		eval_obj.delete()
-		return JsonResponse({'message': 'success'}, status=200)
