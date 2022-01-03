@@ -9,14 +9,7 @@ from matzip_rest_api.models.models import Evaluate, Store
 from django.http import JsonResponse
 from django.core import serializers
 from django.core.exceptions import ValidationError
-
-class NotMatchUserEval(Exception):
-	def __init__(self):
-		super().__init__('NotMatchUserEval')
-
-class NotMatchAccessToken(Exception):
-	def __init__(self):
-		super().__init__('NotMatchAccessToken')
+from matzip_rest_api.exception.exception import NotMatchAccessToken, NotMatchUserEval
 
 @method_decorator(csrf_exempt, name='dispatch')
 class EvaluateView(APIView):
