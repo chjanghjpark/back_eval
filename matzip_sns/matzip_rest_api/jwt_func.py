@@ -7,7 +7,7 @@ SECRET_PRE = ''
 def	create_access_token(user, userinfo):
 	encoded = jwt.encode(
 		{
-			'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5),
+			'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5),
 			'user_id' : user.username,
 			'nickname': user.last_name,
 			'introduce': userinfo.introduce,

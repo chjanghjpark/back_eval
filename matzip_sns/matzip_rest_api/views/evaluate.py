@@ -78,7 +78,7 @@ class EvaluateView(APIView):
 				raise NotMatchAccessToken
 
 			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
-			eval = serializers.serialize("json", Evaluate.objects.filter(user=user))
+			eval = serializers.serialize("json", Evaluate.objects.filter(user=user), use_natural_foreign_keys=True)
 
 			return JsonResponse({'eval': eval, 'message': 'success'}, status=200)
 
@@ -104,7 +104,7 @@ class EvaluateView(APIView):
 			# 다른 유저의 토큰으로 해당 유저의 글을 수정할 수 없음.
 			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
 			eval = Evaluate.objects.get(id=body['pk'])
-			store = Store.objects.get(id=body['id'])
+			store = Store.objects.get(place_id=body['id'])
 			if (user.username != str(eval.user)):
 				raise NotMatchUserEval
 
