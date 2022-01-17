@@ -17,6 +17,7 @@ class LoginView(APIView):
 	def post(self, request):
 		try:
 			token = request.headers.get('Authorization', None)
+			print(token)
 			body = json.loads(request.body.decode('utf-8'))
 			login_site = body['login_site']
 
@@ -29,10 +30,10 @@ class LoginView(APIView):
 			else:
 				return (JsonResponse({'message': 'login_site_invalid'}, status=400))
 
-			user, user_flag = User.objects.get_or_create(username=user_id, password=user_id, last_name=user_nickname)
-			userinfo = Userinfo.objects.get_or_create(user=user, login_site=login_site)
-			access_token = create_access_token(user_id, user_nickname)
-			refresh_token = create_refresh_token(user_id, user_nickname)
+			user, _ = User.objects.get_or_create(username=user_id, password=user_id, last_name=user_nickname)
+			userinfo, _ = Userinfo.objects.get_or_create(user=user, login_site=login_site)
+			access_token = create_access_token(user, userinfo)
+			refresh_token = create_refresh_token(user)
 
 			return JsonResponse({'access_token': access_token, 'refresh_token': refresh_token}, status=200)
 		# token -  get fail
@@ -41,7 +42,7 @@ class LoginView(APIView):
 		# body - login_site not vaild
 		except KeyError:
 			return (JsonResponse({'message': 'login_site REQUITED'}, status=400))
-		# user_id, user_nickname - get fail
+		# user_id, user_nickname - get fail (login_site 잘못일 경우)
 		except IntegrityError:
 			return JsonResponse({'message': 'TOKEN_NOT_VALID'}, status=401)
 
@@ -53,9 +54,9 @@ class LoginView(APIView):
 			if (decoded_jwt['token_type'] != "refresh_token"):
 				raise ValueError
 
-			user_id = decoded_jwt['user_id']
-			user_nickname = decoded_jwt['nickname']
-			access_token = create_access_token(user_id, user_nickname)
+			user = User.objects.get(username=decoded_jwt['user_id'])
+			userinfo = Userinfo.objects.get(user=user)
+			access_token = create_access_token(user, userinfo)
 
 			return JsonResponse({'access_token': access_token}, status=200)
 		# token -  get fail

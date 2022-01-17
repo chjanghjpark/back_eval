@@ -14,7 +14,6 @@ from matzip_rest_api.exception.exception import NotMatchAccessToken, NotMatchUse
 @method_decorator(csrf_exempt, name='dispatch')
 class EvaluateView(APIView):
 	def post(self, request):
-		# 유효하지 않은 jwt일 경우 예외사항 만들어야함.
 		try:
 			encoded_jwt = request.headers.get('Authorization', None)
 			decoded_jwt = validate_token(encoded_jwt)
@@ -22,11 +21,33 @@ class EvaluateView(APIView):
 				raise NotMatchAccessToken
 			body = json.loads(request.body.decode('utf-8'))
 
-			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
-			store, store_flag = Store.objects.get_or_create(store_name=body['store_name'], address=body['address'], \
-				latitude=body['latitude'], longitude=body['longitude'], store_type=body['store_type'])
-			eval = Evaluate.objects.create(user=user, store=store, star=int(body['star']), content=body['content'], \
-				invited_date=body['invited_date'], open_close=body['open_close'])
+			user = User.objects.get(
+				username=decoded_jwt['user_id'], 
+				last_name=decoded_jwt['nickname']
+				)
+
+			store, _ = Store.objects.get_or_create(
+				place_id=body['id'],
+				place_name=body['place_name'], 
+				address_name=body['address_name'], 
+				place_url=body['place_url'],
+				phone=body['phone'],
+				category_group_name=body['category_group_name'],
+				category_group_code=body['category_group_code'],
+				x=body['x'],
+				y=body['y'],
+				area=body['area'],
+				district=body['district'],
+				)
+				
+			eval = Evaluate.objects.create(
+				user=user, 
+				store=store, 
+				star=int(body['star']), 
+				content=body['content'],
+				invited_date=body['invited_date'], 
+				open_close=body['open_close']
+				)
 				
 			eval_return = serializers.serialize("json", Evaluate.objects.filter(pk=eval.pk))
 			return JsonResponse({'eval': eval_return, 'message': 'success'}, status=200)
@@ -83,7 +104,7 @@ class EvaluateView(APIView):
 			# 다른 유저의 토큰으로 해당 유저의 글을 수정할 수 없음.
 			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
 			eval = Evaluate.objects.get(id=body['pk'])
-			store = Store.objects.get(address=body['address'])
+			store = Store.objects.get(id=body['id'])
 			if (user.username != str(eval.user)):
 				raise NotMatchUserEval
 

@@ -16,7 +16,7 @@ Including another URLconf
 # django
 from django.contrib import admin
 from django.urls import path
-from matzip_rest_api.views import views, login, evaluate, user
+from matzip_rest_api.views import views, login, evaluate, user, comment
 # swagger
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -44,6 +44,7 @@ urlpatterns = [
     # django
     path('admin/', admin.site.urls),
     path('eval/', evaluate.EvaluateView.as_view()),
+    path('comment/', comment.CommentView.as_view()),
     # path('user/', views.UserinfoViewSet.as_view({'get':'list', 'post':'create'})),
     path('user/', user.UserView.as_view()),
     path('login/', login.LoginView.as_view()),

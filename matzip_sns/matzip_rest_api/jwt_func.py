@@ -4,24 +4,27 @@ import datetime
 
 SECRET_PRE = ''
 
-def	create_access_token(user_id, nickname):
+def	create_access_token(user, userinfo):
 	encoded = jwt.encode(
 		{
 			'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5),
-			'user_id' : user_id,
-			'nickname': nickname,
+			'user_id' : user.username,
+			'nickname': user.last_name,
+			'introduce': userinfo.introduce,
+			'area': userinfo.area,
+			'login_site': userinfo.login_site,
 			'token_type': 'access_token',
 		},
 		SECRET_PRE, algorithm='HS256'
 	)
 	return encoded
 
-def create_refresh_token(user_id, nickname):
+def create_refresh_token(user):
 	encoded = jwt.encode(
 		{
 			'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24),
-			'user_id' : user_id,
-			'nickname': nickname,
+			'user_id' : user.username,
+			'nickname': user.last_name,
 			'token_type': 'refresh_token',
 		},
 		SECRET_PRE, algorithm='HS256'
@@ -31,6 +34,7 @@ def create_refresh_token(user_id, nickname):
 def validate_token(token):
 	try:
 		jwt.decode(token, SECRET_PRE, algorithms=['HS256'])
+	# 토큰 만료
 	except jwt.ExpiredSignatureError:
 		return status.HTTP_401_UNAUTHORIZED
 	except jwt.InvalidTokenError:
