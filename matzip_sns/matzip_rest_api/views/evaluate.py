@@ -38,6 +38,7 @@ class EvaluateView(APIView):
 				y=body['y'],
 				area=body['area'],
 				district=body['district'],
+				road_address_name=body['road_address_name'], 
 				)
 				
 			eval = Evaluate.objects.create(

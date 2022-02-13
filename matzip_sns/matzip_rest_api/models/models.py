@@ -12,18 +12,13 @@ class Userinfo(models.Model):
 
 class Store(models.Model):
 	place_id = models.CharField(max_length=16, primary_key=True)
-	# store_name = models.CharField(max_length=64)
 	place_name = models.CharField(max_length=64)
-	# address = models.CharField(max_length=128, primary_key=True)
 	address_name = models.CharField(max_length=128)
 	road_address_name = models.CharField(max_length=128)
-	# latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True)
 	x = models.CharField(max_length=32)
-	# longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True)
 	y = models.CharField(max_length=32)
 	area = models.CharField(max_length=8, blank=True)
 	district = models.CharField(max_length=8, blank=True)
-	# store_type = models.CharField(max_length=8, blank=True)
 	category_group_name = models.CharField(max_length=8, blank=True)
 	place_url = models.CharField(max_length=128)
 	phone = models.CharField(max_length=32)
@@ -36,7 +31,7 @@ class Store(models.Model):
 
 class Evaluate(models.Model):
 	user = models.ForeignKey(User, related_name="user_001", on_delete=models.CASCADE, db_column="user")
-	store = models.ForeignKey(Store, related_name="store_001", on_delete=models.CASCADE, db_column="place_id")
+	store = models.ForeignKey(Store, related_name="store_001", on_delete=models.CASCADE, db_column="store")
 	star = models.SmallIntegerField(blank=True)
 	content = models.TextField(blank=True)
 	# iamge = models.ImageField(blank=True)
@@ -47,7 +42,7 @@ class Evaluate(models.Model):
 
 class Comment(models.Model):
 	user = models.ForeignKey(User, related_name="user_002", on_delete=models.CASCADE, db_column="user")
-	evaluate = models.ForeignKey(Evaluate, related_name="store_002", on_delete=models.CASCADE, db_column="place_id")
+	evaluate = models.ForeignKey(Evaluate, related_name="eval_001", on_delete=models.CASCADE, db_column="evaluation_pk")
 	content = models.CharField(max_length=256)
 	write_time = models.DateField(auto_now_add=True)
 	fix_time = models.DateField(auto_now=True)
