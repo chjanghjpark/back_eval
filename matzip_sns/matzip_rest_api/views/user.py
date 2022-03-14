@@ -16,9 +16,8 @@ class UserView(APIView):
 			if (decoded_jwt['token_type'] != "access_token"):
 				raise NotMatchAccessToken
 
-			body = json.loads(request.body.decode('utf-8'))
-
 			user = User.objects.get(username=decoded_jwt['user_id'], last_name=decoded_jwt['nickname'])
+
 			# another_user = User.objects.get(username=body['user_id'])
 			# another_userinfo = Userinfo.objects.get(user=another_user)
 			userinfo = serializers.serialize("json", Userinfo.objects.filter(user=user))
@@ -34,6 +33,8 @@ class UserView(APIView):
 		# user - not exist
 		except User.DoesNotExist:
 			return (JsonResponse({'message': 'USER REQUITED'}, status=400))
+		except json.decoder.JSONDecodeError:
+			return (JsonResponse({'message': 'JSONDecodeError'}, status=400))
 
 	def put(self, request):
 		try:

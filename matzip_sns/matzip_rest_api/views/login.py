@@ -17,7 +17,7 @@ class LoginView(APIView):
 	def post(self, request):
 		try:
 			token = request.headers.get('Authorization', None)
-			print(token)
+			# print(token)
 			body = json.loads(request.body.decode('utf-8'))
 			login_site = body['login_site']
 

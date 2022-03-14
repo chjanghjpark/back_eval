@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from matzip_sns import my_settings as my
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5yrt=q$8r^xcrd85t_9yo^ajez^jyli$$8b+3d3x)5y7!ozc36'
+SECRET_KEY = my.secretKey
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = my.allowedHosts
 
 
 # Application definition
@@ -95,12 +96,12 @@ WSGI_APPLICATION = 'matzip_sns.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'matzip_sns',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': my.dbEngine,
+        'NAME': my.dbName,
+        'USER': my.dbUser,
+        'PASSWORD': my.dbPassword,
+        'HOST': my.dbHost,
+        'PORT': my.dbPort,
     }
 }
 
@@ -150,9 +151,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-]
+CORS_ORIGIN_WHITELIST = my.corsOriginWhitelist
 
 GRAPH_MODELS = {
     "all_applications": True,
