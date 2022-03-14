@@ -10,3 +10,6 @@ mac os
 source ./mat_env/bin/activate
 python3 ./matzip_sns/manage.py runserver
 ```
+
+# used
+postgresql 14.2

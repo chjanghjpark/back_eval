@@ -1,3 +1,4 @@
 mat_env/
 *.pyc
-matzip_sns/db.splite3
+*.sqlite3
+my_settings.py
