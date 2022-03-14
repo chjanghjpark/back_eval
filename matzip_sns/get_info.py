@@ -100,17 +100,3 @@ class Eval():
 		message_json = response.json()
 		message = message_json.get('message')
 		return message
-
-
-
-# access_token, refresh_token = Login.post(KAKAO_TOKEN, 'kakao')
-# print(access_token)
-# access_token = Login.get(refresh_token)
-access_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDA1NzQ2NTMsInVzZXJfaWQiOiJrYWthb18xOTYyNjE3NjA3Iiwibmlja25hbWUiOiJcdWNjM2RcdWQ2MDQifQ.b_vUHzmmTpg5xCiWKrXJ0DCOgT-5V84M7WB8sdOybSo'
-# print(access_token)
-# message = Eval.post(access_token)
-message = Eval.get(access_token)
-print(message)
-# message = Eval.put(access_token)
-# message = Eval.delete(access_token, 9)
-# print(message)
